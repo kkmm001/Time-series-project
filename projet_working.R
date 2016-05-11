@@ -2,6 +2,10 @@ library("urca")
 library("tseries")
 library("foreign")
 library("dygraphs")
+<<<<<<< HEAD
+library('forecast')
+=======
+>>>>>>> de81c6efb594904161fb2675979083278602ebee
 
 ## Clean up
 rm(list=ls()) 
@@ -94,5 +98,24 @@ hist(as.numeric(sarima.ts$residuals))
 probplot(sarima.ts$residuals, qdist=qnorm)
 shapiro.test(sarima.ts$residuals)
 
+<<<<<<< HEAD
+#Q3) Prediction
+
+pred = forecast(sarima.ts, h=24, level=95)
+lower = pred$lower
+
+pred.upper=ts(pred$upper, frequency = 10, end = c(2018,1),start = c(2016,1))
+pred.lower=ts(pred$lower, frequency = 10, end = c(2018,1),start = c(2016,1))
+pred.mean=ts(pred, frequency = 10, end = c(2018,1),start = c(2016,1))
 
 
+
+plot(y=ts.diff, x=)
+par(new = TRUE)
+plot(pred, col=c("red"))
+
+plot()
+=======
+
+
+>>>>>>> de81c6efb594904161fb2675979083278602ebee
