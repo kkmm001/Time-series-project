@@ -23,18 +23,16 @@ ts.data = ts(data$value, frequency = 10, end = c(2016,2),start = c(1995,1))
 #ii) desaisonnalisation par difference saisonniere
 ts.diff = diff(ts.data, lag=12)
 
+mean(ts.diff)
+
 par(mfrow=c(1,2))
 plot(ts.data, col=c("blue"), main="Série brute")
 plot(ts.diff, main="Série désaisonnalisée")
-
-
 
 #iii)acf et pacf disent que ts.data est saisonnier
 par(mfrow=c(1,2))
 ts.acf = acf(ts.data, main="Série brute ACF")
 ts.pacf = pacf(ts.data, main="Série brute PACF")
-
-
 
 #iv) test stationnarite
 pp.test(ts.diff)
@@ -45,14 +43,18 @@ adf.test(ts.diff)
 #Q2 Modele ARMA
 
 #i) En analysant la fn acf/pacf, on retrouve les ordres du modele ARMA tels que:
-acf(ts.diff, main="S?rie d?saisonnalis?e")  #q=2
-pacf(ts.diff, main="S?rie d?saisonnalis?e") #p=1
+par(mfrow=c(1,2))
+acf(ts.diff, main="Série désaisonnalisée ACF")  #q=2
+pacf(ts.diff, main="Série désaisonnalisée PACF") #p=1
 
 # Remarque: on constate que ACF/PACF sont encore significatives. C'est li? ? la P/Q du mod?le SARIMA
 
 sarima.ts = arima(ts.diff, order=c(1, 0, 2), seasonal = list(order = c(0, 0, 1), period = 12))
+sarima.ts$coef/sqrt(diag(sarima.ts$var.coef))
 sarima.ts.1 = arima(ts.diff, order=c(1, 0, 2), seasonal = list(order = c(1, 0, 1), period = 12))
+sarima.ts.1$coef/sqrt(diag(sarima.ts.1$var.coef))
 sarima.ts.2 = arima(ts.diff, order=c(1, 0, 2), seasonal = list(order = c(0, 0, 2), period = 12))
+sarima.ts.2$coef/sqrt(diag(sarima.ts.2$var.coef))
 
 #On en d?duit que (P,Q)=(0,1)
 
@@ -93,7 +95,6 @@ Box.test(sarima.ts$residuals, lag=30,type = c("Box-Pierce"))
 Box.test(sarima.ts$residuals, lag=30,type = c("Ljung-Box"))
 
 tsdiag(sarima.ts, gof.lag=50)
-plot(sarima.ts$residuals)
 
 #v) Test de normalit?
 
