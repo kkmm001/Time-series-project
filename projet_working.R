@@ -18,17 +18,23 @@ cat("\014")
 
 #i) importation de donnees - GAZ.csv
 data <- read.csv2("Gaz_eletricity.csv", col.names=c("year", "month", "value"))
-ts.data = ts(data$value, frequency = 10, end = c(2016,1),start = c(1990,1))
-plot(ts.data, col=c("blue"))
+ts.data = ts(data$value, frequency = 10, end = c(2016,2),start = c(1995,1))
 
-#ii)acf et pacf disent que ts.data est saisonnier
-ts.acf = acf(ts.data, main="S?rie brute ACF")
-ts.pacf = pacf(ts.data, main="S?rie brute PACF")
-
-#iii) desaisonnalisation par difference saisonniere
-
+#ii) desaisonnalisation par difference saisonniere
 ts.diff = diff(ts.data, lag=12)
-plot(ts.diff, main="S?rie d?saisonnalis?e")
+
+par(mfrow=c(1,2))
+plot(ts.data, col=c("blue"), main="Série brute")
+plot(ts.diff, main="Série désaisonnalisée")
+
+
+
+#iii)acf et pacf disent que ts.data est saisonnier
+par(mfrow=c(1,2))
+ts.acf = acf(ts.data, main="Série brute ACF")
+ts.pacf = pacf(ts.data, main="Série brute PACF")
+
+
 
 #iv) test stationnarite
 pp.test(ts.diff)
@@ -101,20 +107,8 @@ shapiro.test(sarima.ts$residuals)
 
 #Q3) Prediction
 
-pred = forecast(sarima.ts, h=24, level=95)
-lower = pred$lower
-upper = pred$upper
+pred = forecast(sarima.ts, h=12, level=95)
 
-pred.upper=ts(pred$upper, frequency = 10, end = c(2018,1),start = c(2016,1))
-pred.lower=ts(pred$lower, frequency = 10, end = c(2018,1),start = c(2016,1))
-pred.mean=ts(pred, frequency = 10, end = c(2018,1),start = c(2016,1))
-
-
-
-plot(y=ts.diff, x=)
-par(new = TRUE)
-plot(pred$lower, type="o", col=c("red"))
-
-plot()
+plot(pred)
 
 
