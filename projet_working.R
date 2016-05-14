@@ -17,7 +17,9 @@ cat("\014")
 #Production et distribution d'?lectricit?, de gaz, de vapeur et d'air conditionn? (NAF r?v. 2, niveau section, poste D)
 
 #i) importation de donnees - GAZ.csv
-data <- read.csv2("Gaz_eletricity.csv", col.names=c("year", "month", "value"))
+data <- read.csv2("Gaz_eletricity.csv", col.names=c("year", "month", "value"), header=FALSE)
+data=data[rev(rownames(data)),]
+
 ts.data = ts(data$value, frequency = 10, end = c(2016,2),start = c(1995,1))
 
 #ii) desaisonnalisation par difference saisonniere
@@ -49,12 +51,21 @@ pacf(ts.diff, main="Série désaisonnalisée PACF") #p=1
 
 # Remarque: on constate que ACF/PACF sont encore significatives. C'est li? ? la P/Q du mod?le SARIMA
 
-sarima.ts = arima(ts.diff, order=c(1, 0, 2), seasonal = list(order = c(0, 0, 1), period = 12))
+sarima.ts = arima(ts.diff, order=c(1, 0, 1), seasonal = list(order = c(0, 0, 1), period = 12))
 sarima.ts$coef/sqrt(diag(sarima.ts$var.coef))
-sarima.ts.1 = arima(ts.diff, order=c(1, 0, 2), seasonal = list(order = c(1, 0, 1), period = 12))
+sarima.ts.1 = arima(ts.diff, order=c(1, 0, 1), seasonal = list(order = c(1, 0, 1), period = 12))
 sarima.ts.1$coef/sqrt(diag(sarima.ts.1$var.coef))
-sarima.ts.2 = arima(ts.diff, order=c(1, 0, 2), seasonal = list(order = c(0, 0, 2), period = 12))
+sarima.ts.2 = arima(ts.diff, order=c(1, 0, 1), seasonal = list(order = c(0, 0, 2), period = 12))
 sarima.ts.2$coef/sqrt(diag(sarima.ts.2$var.coef))
+
+sarima.ts.3 = arima(ts.diff, order=c(1, 0, 1), seasonal = list(order = c(0, 1, 1), period = 12))
+sarima.ts.3$coef/sqrt(diag(sarima.ts.3$var.coef))
+
+sarima.ts.4 = arima(ts.diff, order=c(1, 1, 1), seasonal = list(order = c(0, 0, 1), period = 12))
+sarima.ts.4$coef/sqrt(diag(sarima.ts.4$var.coef))
+
+sarima.ts.5 = arima(ts.diff, order=c(1, 1, 1), seasonal = list(order = c(0, 1, 1), period = 12))
+sarima.ts.5$coef/sqrt(diag(sarima.ts.5$var.coef))
 
 #On en d?duit que (P,Q)=(0,1)
 
@@ -86,17 +97,18 @@ BICmatrix
 # On en trouve un groupe: (p,q)=(2,1)
 
 #iii) Test de significativit?s pour ces deux groupes
-sarima.ts = arima(ts.diff, order=c(2, 0, 1), seasonal = list(order = c(0, 0, 1), period = 12))
+sarima.ts = arima(ts.diff, order=c(3, 0, 2), seasonal = list(order = c(0, 0, 1), period = 12))
 sarima.ts$coef/sqrt(diag(sarima.ts$var.coef)) #pour voir si significatif
-# tous les params sont significatifs.
 
-#iv) Test des r?sidus
+
+s#iv) Test des r?sidus
 Box.test(sarima.ts$residuals, lag=30,type = c("Box-Pierce"))
 Box.test(sarima.ts$residuals, lag=30,type = c("Ljung-Box"))
 
 tsdiag(sarima.ts, gof.lag=50)
 
 #v) Test de normalit?
+par(mfrow=c(1,1))
 
 qqnorm(sarima.ts$residuals)
 qqline(sarima.ts$residuals)
